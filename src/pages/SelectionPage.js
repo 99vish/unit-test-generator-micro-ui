@@ -26,7 +26,7 @@ const SelectionPage = () => {
             console.error('Error updating paths in backend:', error);
         }
     }
-    const buttonText = "Submit";
+    
   return (
     <div id='formContainer'>
         {showForm && <FormComponent initialFields={fields} buttonText="Submit" onSubmit={handleSubmit} />}

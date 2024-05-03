@@ -18,19 +18,23 @@ const MyDialog = ({ options }) => {
   const handleClose = () => {
     setOpen(false);
   };
-
+  
+  
+ debugger
   return (
     <div>
       <Button variant="outlined" onClick={handleClickOpen}>
         Select Classes And Methods
       </Button>
+
       <Dialog
         fullScreen
         open={open}
         onClose={handleClose}
         TransitionComponent={Transition}
-      >
-        <DropDown options={options} /> {/* Render the DropDown component inside the Dialog */}
+      >  
+    
+      <DropDown options={options} /> 
       </Dialog>
     </div>
   );

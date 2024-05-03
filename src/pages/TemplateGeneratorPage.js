@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import FormComponent from '../components/FormComponent';
 import ExcelJS from 'exceljs';
 import axios from 'axios';
@@ -6,99 +6,117 @@ import '../PagesCSS/TemplateGeneratorPage.css';
 import '../componentCSS/FormComponent.css';
 function TemplateGeneratorPage({ templates }) {
 
-
-    const [templateIndex, setTemplateIndex] = useState(0);
-    const [showFormIndex, setShowFormIndex] = useState(null);
+    console.log("vish");
+    
     const [completedExcelPath, setCompletedExcelPath] = useState("C:\\Users\\vishakha.mundra\\Downloads\\excel_template_AccessorialChargeController (3).xlsx");
     const [showTemplateGenerationButton , setShowTemplateGenerationButton] = useState(true);
+    const [showCompletedExcelForm, setShowCompletedExcelForm] = useState(false);
     
 
 
     const handleSubmit = async () => {
         
         try {
-            const className = templates[templateIndex].className;
-            console.log(className);
-            const response = await axios.post('http://localhost:8080/api/generateTests', { completedExcelPath: completedExcelPath , className: className }); 
+            
+            const response = await axios.post('http://localhost:8080/api/generateTests', { completedExcelPath: completedExcelPath }); 
             console.log(response);
         } catch (error) {
-            const className = templates[templateIndex].className;
-            console.error(`Error generating tests for ${className}`);
+           
+            console.error(`Error generating tests`);
         }
     }
 
 
-    const generateExcelWorkbook = async (template) => {
-        
-        setShowTemplateGenerationButton(false);
-        try {
-
-            const workbook = new ExcelJS.Workbook();
+    const gddWorksheet('MethodDetails');
             debugger
 
-            const headers = template.headers;
-            const methodParams = template.methodParams;
-            const combinedHeaders = [headers, ...methodParams];
-            const ws = workbook.addWorksheet('MethodParams');
-            ws.addRows(combinedHeaders);
+            for(let i=0;i<templates.length;i++){
+                const template = templates[i];
+                const methodParams = template.methodParams;
+                const className = template.className;
 
-            const requestHeaders = ["request","request","request","response","response","response"];
+                for(let j=0; j<template.requests.length; j++){
+                    const methodName = template.requests[j];
+                    const params = methodParams[methodName];
+                    const newRow = [
+                        className,
+                        methodName
+                    ];
+        
+                    for (let k = 0; k < params.length; k++) {
+                        newRow.push(params[k]);
+                    }
 
-            for(let i=0; i<template.requests.length; i++){
-                const requestName = template.requests[i];
-                const worksheet = workbook.addWorksheet(`${requestName}`);
-                worksheet.addRow(requestHeaders);
+                    newRow.push("Request");
+                    newRow.push("Response");
+
+                    ws.addRow(newRow);
+                    ws.addRow([className,methodName]);
+                }
+
+                for(let k=0;k<template.methodsRequiringResponses.length; k++){
+                    const methodName = template.methodsRequiringResponses[k];
+                    const params = methodParams[methodName];
+                    const newRow = [
+                        className,
+                        methodName
+                    ];
+        
+                    for (let k = 0; k < params.length; k++) {
+                        newRow.push(params[k]);
+                    }
+
+                    newRow.push("Response");
+
+                    ws.addRow(newRow);
+                    ws.addRow([className,methodName]);
+                    
+                }
             }
-            
+ 
             try {
                 const buffer = await workbook.xlsx.writeBuffer();
                 const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = `excel_template_${template.className}.xlsx`;
+                link.download = `excel_template.xlsx`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
 
-                setShowFormIndex(templateIndex);
+                setShowCompletedExcelForm(true);
+
+                
             } catch (error) {
                 console.error('Error saving Excel workbook', error);
             }
-            console.log(`Excel workbook generated for ${template.className}`);
+            console.log(`Excel workbook generated!`);
         } catch (error) {
             console.error('Error generating Excel workbook', error);
         }
     };
 
-    const handleNext = () => {
-        setShowTemplateGenerationButton(true);
-        setTemplateIndex((prevState) => prevState + 1);
-    };
+    
 
 
     return (
         <div>
-            {
-                templateIndex < templates.length && <div>
-                    <h4>Process running for {templates[templateIndex].className}</h4>
-                    { 
-                        showTemplateGenerationButton && <button onClick={()=>generateExcelWorkbook(templates[templateIndex])}>Generate Excel Template</button> 
-                    }
-                    {
-                        showFormIndex === templateIndex && <div id='excelForm'>
-                            <FormComponent 
-                                initialFields={[{ label: "Enter Completed Excel Path" ,placeholder: "Excel Path here:", value: completedExcelPath, setFunction: setCompletedExcelPath}]}
-                                buttonText={"Submit"}
-                                onSubmit={handleSubmit}
-                            />
-                        </div>
-                    }
-                </div>
-
+            { 
+                showTemplateGenerationButton && <button onClick={()=>generateExcelWorkbook(templates)}>Generate Excel Template</button> 
             }
-           {(templateIndex < templates.length - 1) && <button id="nextButton" onClick={handleNext}>Next</button>}
+            {
+                showCompletedExcelForm && <div id='excelForm'>
+                    <FormComponent 
+                        initialFields={[{ label: "Enter Completed Excel Path" ,placeholder: "Excel Path here:", value: completedExcelPath, setFunction: setCompletedExcelPath}]}
+                        buttonText={"Submit"}
+                        onSubmit={handleSubmit}
+                    />
+                </div>
+            }
+    
+           
         </div>
     );
 }
