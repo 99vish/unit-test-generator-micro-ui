@@ -26,8 +26,12 @@ function TemplateGeneratorPage({ templates }) {
         }
     }
 
-
-    const gddWorksheet('MethodDetails');
+    const generateExcelWorkbook = async (template) => {
+        
+        try{
+        const workbook = new ExcelJS.Workbook();
+        const ws = workbook.addWorksheet('MethodDetails');
+        
             debugger
 
             for(let i=0;i<templates.length;i++){
@@ -119,6 +123,6 @@ function TemplateGeneratorPage({ templates }) {
            
         </div>
     );
-}
 
-export default TemplateGeneratorPage
+}
+export default TemplateGeneratorPage;
