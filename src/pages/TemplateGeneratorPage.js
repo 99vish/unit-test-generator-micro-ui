@@ -28,57 +28,38 @@ function TemplateGeneratorPage({ templates }) {
 
     const generateExcelWorkbook = async (template) => {
         
+        setShowTemplateGenerationButton(false);
         try{
         const workbook = new ExcelJS.Workbook();
         const ws = workbook.addWorksheet('MethodDetails');
-        
+        ws.addRow(["ClassName","MethodName","Method Parameters","Request Headers","Request","Response Headers","Response"]);
+
             debugger
 
             for(let i=0;i<templates.length;i++){
                 const template = templates[i];
                 const methodParams = template.methodParams;
                 const className = template.className;
+                
 
                 for(let j=0; j<template.requests.length; j++){
                     const methodName = template.requests[j];
                     const params = methodParams[methodName];
-                    const newRow = [
-                        className,
-                        methodName
-                    ];
-        
-                    for (let k = 0; k < params.length; k++) {
-                        newRow.push(params[k]);
-                    }
-
-                    newRow.push("Request");
-                    newRow.push("Response");
-
-                    ws.addRow(newRow);
-                    ws.addRow([className,methodName]);
+                   
+                    ws.addRow([className,methodName,params]);
                 }
 
                 for(let k=0;k<template.methodsRequiringResponses.length; k++){
                     const methodName = template.methodsRequiringResponses[k];
                     const params = methodParams[methodName];
-                    const newRow = [
-                        className,
-                        methodName
-                    ];
-        
-                    for (let k = 0; k < params.length; k++) {
-                        newRow.push(params[k]);
-                    }
-
-                    newRow.push("Response");
-
-                    ws.addRow(newRow);
-                    ws.addRow([className,methodName]);
+                  
+                    ws.addRow([className,methodName,params]);
                     
                 }
             }
  
             try {
+                
                 const buffer = await workbook.xlsx.writeBuffer();
                 const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
                 const url = URL.createObjectURL(blob);
@@ -106,7 +87,7 @@ function TemplateGeneratorPage({ templates }) {
 
 
     return (
-        <div>
+        <div className="centered-container">
             { 
                 showTemplateGenerationButton && <button onClick={()=>generateExcelWorkbook(templates)}>Generate Excel Template</button> 
             }

@@ -7,7 +7,7 @@ import Dialog from '../pages/Dialog';
 
 const SelectionPage = () => {
 
-    const [projectPath, setProjectPath] = useState("C:\\Platform1\\platform-master-data-api");
+    const [projectPath, setProjectPath] = useState("C:\\Platform\\platform-master-data-api");
     const [showForm, setShowForm] = useState(true);
     const [responseData, setResponseData ] =useState ([]);
     const [showDropdown, setShowDropdown ] = useState(false);
